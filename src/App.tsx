@@ -33,10 +33,10 @@ function App() {
           <ambientLight intensity={0.5} />
           <directionalLight position={[10, 10, 5]} intensity={1} />
           
-          <ScrollControls pages={7} damping={0.1}>
+          <ScrollControls pages={8.5} damping={0.05}>
             <NetworkNodes />
             <ChaosVortex />
-            <Scroll html>
+            <Scroll html style={{ width: '100vw' }}>
               <UI setActiveModal={setActiveModal} />
             </Scroll>
           </ScrollControls>

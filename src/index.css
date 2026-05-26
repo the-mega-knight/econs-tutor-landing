@@ -78,18 +78,21 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -1;
+  z-index: -10;
   pointer-events: none;
 }
 
 /* HTML Sections natural flow */
 .html-container {
-  width: 100vw;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  padding-top: 6rem;
 }
 
 .html-section {
+  position: relative;
+  z-index: 10;
   width: 100%;
   min-height: 100vh;
   display: flex;
@@ -107,6 +110,27 @@ body {
   margin-right: auto;
 }
 
+.max-w-5xl {
+  width: 100%;
+  max-width: 64rem; /* 1024px */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.px-6 {
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
@@ -115,7 +139,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .massive-text {
   font-size: clamp(3rem, 8vw, 7rem);
-  line-height: 1.05;
+  line-height: 1.2;
   letter-spacing: -0.04em;
   font-weight: 700;
   margin-bottom: 1rem;

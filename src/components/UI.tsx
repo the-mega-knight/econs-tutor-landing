@@ -7,9 +7,9 @@ export default function UI({ setActiveModal }: { setActiveModal: (modal: string 
       
       {/* Page 1: Hero */}
       <section className="html-section">
-        <div className="max-w-6xl glass-text-bg" style={{ textAlign: 'center' }}>
+        <div className="max-w-5xl mx-auto px-6 glass-text-bg text-center">
           <motion.h1 
-            className="massive-text"
+            className="massive-text text-center"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
@@ -18,7 +18,7 @@ export default function UI({ setActiveModal }: { setActiveModal: (modal: string 
             You don't need more studying.<br />You need a system.
           </motion.h1>
           <motion.p 
-            className="sub-text"
+            className="sub-text text-center"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 1 }}
