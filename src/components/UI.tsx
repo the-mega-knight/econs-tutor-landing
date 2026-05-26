@@ -105,7 +105,7 @@ export default function UI({ setActiveModal }: { setActiveModal: (modal: string 
 
       {/* Page 6: Testimonial & Interactive Assessment & CTA */}
       <section className="html-section">
-        <div className="max-w-6xl" style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <div className="max-w-6xl glass-text-bg" style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <div className="quote-mark">"</div>
           <p className="testimonial-text">
             I was so down bad for H2 Econs (got an E). He promised me an A within 4 months… I thought he was a scammer. After he showed me his secret sauce, I changed his contact to DR ECONS. He forced me to do 3 essays a week even though he was busy in uni. Went from not knowing I needed to evaluate to his ideal way: concise. He is very real and doesn't sugarcoat. Got an A in less than 8 months. He's the real deal.

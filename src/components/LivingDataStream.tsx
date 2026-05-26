@@ -3,56 +3,161 @@ import { useFrame } from '@react-three/fiber';
 import { useScroll } from '@react-three/drei';
 import * as THREE from 'three';
 
+const getTextPoints = (text: string, count: number) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 500;
+  canvas.height = 120;
+  const ctx = canvas.getContext('2d');
+  const pos = new Float32Array(count * 3);
+
+  if (!ctx) return pos;
+  
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.font = 'bold 42px sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+  
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  const validPixels: {x: number, y: number}[] = [];
+  
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      const idx = (y * canvas.width + x) * 4;
+      if (imgData[idx] > 128) {
+        validPixels.push({ x, y });
+      }
+    }
+  }
+  
+  if (validPixels.length === 0) return pos;
+  
+  for (let i = 0; i < count; i++) {
+    const pixel = validPixels[Math.floor(Math.random() * validPixels.length)];
+    // Map canvas coordinates to 3D space, heavily reduced noise so text is sharp
+    pos[i * 3] = (pixel.x - canvas.width / 2) * 0.12 + (Math.random() - 0.5) * 0.05;
+    pos[i * 3 + 1] = -(pixel.y - canvas.height / 2) * 0.12 + (Math.random() - 0.5) * 0.05;
+    pos[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
+  }
+  return pos;
+};
+
+const generateShapes = (count: number) => {
+  const shapes: Float32Array[] = [];
+  
+  // 0: Supply & Demand (Hero)
+  const shape0 = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const isSupply = i < count / 2;
+    const x = (Math.random() - 0.5) * 40;
+    const y = isSupply ? x : -x;
+    shape0[i * 3] = x;
+    shape0[i * 3 + 1] = y + (Math.random() - 0.5) * 3;
+    shape0[i * 3 + 2] = (Math.random() - 0.5) * 8;
+  }
+  shapes.push(shape0);
+
+  // 1: Simultaneous Shift (Diagnostic Engine)
+  const shape1 = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const group = i % 4; // S1, S2, D1, D2
+    const x = (Math.random() - 0.5) * 40;
+    let y = 0;
+    if (group === 0) y = x; 
+    if (group === 1) y = x - 5; 
+    if (group === 2) y = -x; 
+    if (group === 3) y = -x + 5; 
+    
+    shape1[i * 3] = x;
+    shape1[i * 3 + 1] = y + (Math.random() - 0.5) * 1.5;
+    shape1[i * 3 + 2] = (Math.random() - 0.5) * 6;
+  }
+  shapes.push(shape1);
+
+  // 2: Keynesian Cross (Structure)
+  const shape2 = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const isAS = i < count / 2;
+    const x = (Math.random() - 0.5) * 35;
+    let y = 0;
+    if (isAS) {
+      y = x;
+    } else {
+      y = 5 + 0.4 * x;
+    }
+    shape2[i * 3] = x;
+    shape2[i * 3 + 1] = y + (Math.random() - 0.5) * 1.5;
+    shape2[i * 3 + 2] = (Math.random() - 0.5) * 4;
+  }
+  shapes.push(shape2);
+
+  // 3: Text Equation (Bento Grid)
+  shapes.push(getTextPoints("Y = C + I + G + NX", count));
+
+  // 4: Exponential Trend (Testimonials / CTA)
+  const shape4 = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const x = (Math.random() - 0.5) * 30;
+    const y = Math.exp(0.2 * (x + 10)) * 0.5 - 10; // Adjust exponential scaling
+    shape4[i * 3] = x + (Math.random() - 0.5) * 2;
+    shape4[i * 3 + 1] = y + (Math.random() - 0.5) * 2;
+    shape4[i * 3 + 2] = (Math.random() - 0.5) * 8;
+  }
+  shapes.push(shape4);
+
+  return shapes;
+};
+
+// Easing function for smooth transitions
+const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
 export default function LivingDataStream() {
   const pointsRef = useRef<THREE.Points>(null);
   const groupRef = useRef<THREE.Group>(null);
   const scroll = useScroll();
-  
-  const particlesCount = 6000; // 3000 for Demand, 3000 for Supply
 
-  // Pre-calculate initial positions for intersecting curves (X shape in 3D)
-  const initialPositions = useMemo(() => {
-    const pos = new Float32Array(particlesCount * 3);
-    const half = particlesCount / 2;
-
-    for (let i = 0; i < particlesCount; i++) {
-      const ix = i * 3;
-      // Spread across x axis from -15 to 15
-      const x = (Math.random() - 0.5) * 30; 
-      
-      let y = 0;
-      let z = (Math.random() - 0.5) * 8; // Depth spread
-
-      if (i < half) {
-        // Curve 1 (Downward slope: y = -x) + noise
-        y = -x + (Math.random() - 0.5) * 4;
-      } else {
-        // Curve 2 (Upward slope: y = x) + noise
-        y = x + (Math.random() - 0.5) * 4;
-      }
-
-      pos[ix] = x;
-      pos[ix + 1] = y;
-      pos[ix + 2] = z;
+  // Create a perfectly round dot texture dynamically
+  const dotTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.beginPath();
+      ctx.arc(32, 32, 30, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
     }
-    return pos;
-  }, [particlesCount]);
-
-  // Clone initial array for dynamic updates
-  const positions = useMemo(() => new Float32Array(initialPositions), [initialPositions]);
+    return new THREE.CanvasTexture(canvas);
+  }, []);
+  
+  const particlesCount = 8000;
+  const shapes = useMemo(() => generateShapes(particlesCount), [particlesCount]);
+  const currentPositions = useMemo(() => new Float32Array(shapes[0]), [shapes]);
 
   useFrame((state) => {
     if (!pointsRef.current || !groupRef.current) return;
 
     const t = state.clock.elapsedTime;
+    const offset = scroll.offset; // 0 to 1
     
-    // 1. Scroll-linked Y-axis rotation
-    // offset goes from 0 to 1 over the full page scroll
-    const scrollOffset = scroll.offset;
-    // Rotate exactly 1 full rotation (Math.PI * 2) or half rotation as user scrolls
-    groupRef.current.rotation.y = scrollOffset * Math.PI;
+    // Smooth Parallax Rotation
+    groupRef.current.rotation.y = offset * Math.PI * 0.5;
+    groupRef.current.rotation.z = Math.sin(offset * Math.PI) * 0.1;
 
-    // 2. Vertex breathing animation (Sine wave math function)
+    // Determine shapes to interpolate between
+    const maxIndex = shapes.length - 1;
+    const floatIndex = offset * maxIndex;
+    let baseShape = Math.floor(floatIndex);
+    let nextShape = Math.min(baseShape + 1, maxIndex);
+    let rawLerp = floatIndex - baseShape;
+
+    // Apply easing for snappier, distinct shape formations rather than messy middle-states
+    const lerpFactor = easeInOutCubic(rawLerp);
+
     const array = pointsRef.current.geometry.attributes.position.array as Float32Array;
     
     for (let i = 0; i < particlesCount; i++) {
@@ -60,21 +165,20 @@ export default function LivingDataStream() {
       const iy = ix + 1;
       const iz = ix + 2;
       
-      const origX = initialPositions[ix];
-      const origY = initialPositions[iy];
-      const origZ = initialPositions[iz];
+      const targetX = THREE.MathUtils.lerp(shapes[baseShape][ix], shapes[nextShape][ix], lerpFactor);
+      const targetY = THREE.MathUtils.lerp(shapes[baseShape][iy], shapes[nextShape][iy], lerpFactor);
+      const targetZ = THREE.MathUtils.lerp(shapes[baseShape][iz], shapes[nextShape][iz], lerpFactor);
 
-      // Subtle undulation based on time and original spatial position
-      const waveX = Math.sin(t * 0.5 + origY * 0.2) * 0.3;
-      const waveY = Math.cos(t * 0.5 + origX * 0.2) * 0.3;
-      const waveZ = Math.sin(t * 0.5 + origZ * 0.2) * 0.3;
+      // Add subtle breathing sine waves based on time and spatial coordinates
+      const waveX = Math.sin(t * 0.5 + targetY * 0.2) * 0.3;
+      const waveY = Math.cos(t * 0.5 + targetX * 0.2) * 0.3;
+      const waveZ = Math.sin(t * 0.5 + targetZ * 0.2) * 0.3;
 
-      array[ix] = origX + waveX;
-      array[iy] = origY + waveY;
-      array[iz] = origZ + waveZ;
+      array[ix] = targetX + waveX;
+      array[iy] = targetY + waveY;
+      array[iz] = targetZ + waveZ;
     }
 
-    // Mark geometry for update
     pointsRef.current.geometry.attributes.position.needsUpdate = true;
   });
 
@@ -84,14 +188,16 @@ export default function LivingDataStream() {
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            args={[positions, 3]}
+            args={[currentPositions, 3]}
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.06}
-          color="#1d1d1f" // Dark gray/black for light mode minimalist aesthetic
+          size={0.12}
+          color="#333336" 
+          map={dotTexture}
+          alphaTest={0.5}
           transparent
-          opacity={0.6}
+          opacity={0.8}
           sizeAttenuation
           depthWrite={false}
           blending={THREE.NormalBlending}
