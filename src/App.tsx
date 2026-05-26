@@ -10,20 +10,32 @@ import QuizModal from './components/QuizModal';
 function App() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
 
+  // Note: Since ScrollControls hijacks the scroll, window.scrollTo inside nav-btn won't work natively if Drei captures it.
+  // We can use native smooth scroll by simulating it, or simply scroll the scroll container that Drei creates.
+  // Actually, `@react-three/drei` ScrollControls intercepts the wheel, but allows the native scrollbar on the parent wrapper if not hidden.
+  // But since we just want a visual button, window.scrollTo might just trigger the native browser scroll which Drei listens to!
+
   return (
     <>
+      <nav className="nav-bar">
+        <div className="nav-logo">ezA tuition centre</div>
+        <button 
+          className="nav-btn" 
+          onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+        >
+          Book Assessment
+        </button>
+      </nav>
+
       <div className="canvas-container">
         <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
           <color attach="background" args={['#ffffff']} />
           <ambientLight intensity={0.5} />
           <directionalLight position={[10, 10, 5]} intensity={1} />
           
-          <ScrollControls pages={6} damping={0.1}>
-            {/* 3D Scene Layer */}
+          <ScrollControls pages={7} damping={0.1}>
             <NetworkNodes />
             <ChaosVortex />
-            
-            {/* HTML Overlay Layer */}
             <Scroll html>
               <UI setActiveModal={setActiveModal} />
             </Scroll>
@@ -31,7 +43,6 @@ function App() {
         </Canvas>
       </div>
 
-      {/* Modal Overlay Rendered Outside Canvas for true fixed positioning */}
       <AnimatePresence>
         {activeModal && (
           <motion.div 
@@ -49,17 +60,7 @@ function App() {
               onClick={(e) => e.stopPropagation()}
             >
               <button className="modal-close" onClick={() => setActiveModal(null)}>Close</button>
-              
-              {activeModal === 'diagnostic' ? (
-                <QuizModal onClose={() => setActiveModal(null)} />
-              ) : (
-                <>
-                  <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Student Profile</h2>
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '1.1rem' }}>
-                    Student profile matching engine goes here.
-                  </p>
-                </>
-              )}
+              <QuizModal type={activeModal as 'diagnostic' | 'profile'} onClose={() => setActiveModal(null)} />
             </motion.div>
           </motion.div>
         )}
