@@ -67,7 +67,7 @@ export default function UI({ setActiveModal }: { setActiveModal: (modal: string 
                 style={{ objectFit: 'cover', width: '100%', height: '100%', borderRadius: 'inherit', filter: 'grayscale(100%)' }} 
               />
             </div>
-            <div className="profile-text">
+            <div className="profile-text glass-text-bg">
               <h2 style={{ fontSize: '3.5rem', marginBottom: '1.5rem', fontWeight: 700, letterSpacing: '-0.04em' }}>The Architect.</h2>
               <p style={{ fontSize: '1.3rem', color: 'var(--secondary-text)', lineHeight: 1.6, marginBottom: '1rem' }}>
                 I am Aidan Koh. NUS Merit Scholar (Data Science & Economics) and ACS Alumnus.

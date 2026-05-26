@@ -77,16 +77,28 @@ const generateShapes = (count: number) => {
   }
   shapes.push(shape1);
 
-  // 2: Keynesian Cross (Structure)
+  // 2: Keynesian Cross (Structure) with Axes for context
   const shape2 = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
-    const isAS = i < count / 2;
-    const x = (Math.random() - 0.5) * 35;
+    const group = i % 3; // 45-deg line, AE line, Axes
+    const x = (Math.random() - 0.5) * 40;
     let y = 0;
-    if (isAS) {
+    if (group === 0) {
       y = x;
+    } else if (group === 1) {
+      y = 0.3 * x + 8;
     } else {
-      y = 5 + 0.4 * x;
+      if (Math.random() > 0.5) {
+         // X-axis
+         shape2[i * 3] = x;
+         shape2[i * 3 + 1] = -20;
+      } else {
+         // Y-axis
+         shape2[i * 3] = -20;
+         shape2[i * 3 + 1] = x;
+      }
+      shape2[i * 3 + 2] = (Math.random() - 0.5) * 2;
+      continue;
     }
     shape2[i * 3] = x;
     shape2[i * 3 + 1] = y + (Math.random() - 0.5) * 1.5;
