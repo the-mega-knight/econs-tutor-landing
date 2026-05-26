@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import MarketSimulator from './MarketSimulator';
+import MicroDiagnostic from './MicroDiagnostic';
 
 export default function UI({ setActiveModal }: { setActiveModal: (modal: string | null) => void }) {
   return (
@@ -27,6 +28,11 @@ export default function UI({ setActiveModal }: { setActiveModal: (modal: string 
             Master H2 & A2 Economics with structured data, brutal honesty, and relentless practice.
           </motion.p>
         </div>
+      </section>
+
+      {/* Page 1.5: Micro-Diagnostic Engine */}
+      <section className="html-section">
+        <MicroDiagnostic />
       </section>
 
       {/* Page 2: The Chaos */}

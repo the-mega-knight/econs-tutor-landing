@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { ScrollControls, Scroll } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
-import NetworkNodes from './components/NetworkNodes';
-import ChaosVortex from './components/ChaosVortex';
+import LivingDataStream from './components/LivingDataStream';
 import UI from './components/UI';
 import QuizModal from './components/QuizModal';
 
@@ -19,12 +18,18 @@ function App() {
     <>
       <nav className="nav-bar">
         <div className="nav-logo">ezA tuition centre</div>
-        <button 
-          className="nav-btn" 
-          onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-        >
-          Book Assessment
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div className="capacity-tracker">
+            <div className="pulse-dot"></div>
+            H2 INTAKE: 2 SLOTS REMAINING
+          </div>
+          <button 
+            className="nav-btn" 
+            onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+          >
+            Book Assessment
+          </button>
+        </div>
       </nav>
 
       <div className="canvas-container">
@@ -33,9 +38,8 @@ function App() {
           <ambientLight intensity={0.5} />
           <directionalLight position={[10, 10, 5]} intensity={1} />
           
-          <ScrollControls pages={8.5} damping={0.05}>
-            <NetworkNodes />
-            <ChaosVortex />
+          <ScrollControls pages={9.5} damping={0.05}>
+            <LivingDataStream />
             <Scroll html style={{ width: '100vw' }}>
               <UI setActiveModal={setActiveModal} />
             </Scroll>
